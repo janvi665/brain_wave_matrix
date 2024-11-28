@@ -1,0 +1,90 @@
+create database lib;
+use lib;
+
+-- Create Authors Table
+CREATE TABLE Authors (
+    author_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    bio TEXT
+);
+
+-- Create Categories Table
+CREATE TABLE Categories (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    category_name VARCHAR(255) NOT NULL
+);
+
+-- Create Books Table
+CREATE TABLE Books (
+    book_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    author_id INT,
+    category_id INT,
+    published_date DATE,
+    isbn VARCHAR(20),
+    copies_available INT DEFAULT 1,
+    FOREIGN KEY (author_id) REFERENCES Authors(author_id),
+    FOREIGN KEY (category_id) REFERENCES Categories(category_id)
+);
+
+-- Create Members Table
+CREATE TABLE Members (
+    member_id INT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    phone_number VARCHAR(15)  -- Removed the comma here
+);
+-- Create Loans Table
+CREATE TABLE Loans (
+    loan_id INT PRIMARY KEY AUTO_INCREMENT,
+    book_id INT,
+    member_id INT,
+    loan_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    return_date DATE,
+    FOREIGN KEY (book_id) REFERENCES Books(book_id),
+    FOREIGN KEY (member_id) REFERENCES Members(member_id)
+);
+
+-- Inserting Authors
+INSERT INTO Authors (name, bio) VALUES 
+('J.K. Rowling', 'Author of the Harry Potter series.'),
+('George R.R. Martin', 'Author of A Song of Ice and Fire.');
+
+-- Inserting Categories
+INSERT INTO Categories (category_name) VALUES 
+('Fantasy'), 
+('Science Fiction'), 
+('Mystery');
+
+-- Inserting Books
+INSERT INTO Books (title, author_id, category_id, published_date, isbn, copies_available) VALUES 
+('Harry Potter and the Philosopher\'s Stone', 1, 1, '1997-06-26', '978-0747532699', 5),
+('A Game of Thrones', 2, 1, '1996-08-06', '978-0553103540', 3);
+
+-- Inserting Members
+INSERT INTO Members (first_name, last_name, email, phone_number) VALUES 
+('John', 'Doe', 'john.doe@example.com', '1234567890'),
+('Jane', 'Smith', 'jane.smith@example.com', '0987654321');
+
+show tables;
+
+SELECT b.title, a.name AS author, c.category_name 
+FROM Books b
+JOIN Authors a ON b.author_id = a.author_id
+JOIN Categories c ON b.category_id = c.category_id;
+
+SELECT 
+    l.loan_id, 
+    b.title, 
+    m.first_name, 
+    m.last_name, 
+    l.loan_date, 
+    l.return_date
+FROM 
+    Loans l
+JOIN 
+    Books b ON l.book_id = b.book_id
+JOIN 
+    Members m ON l.member_id = m.member_id
+LIMIT 0, 5000;
